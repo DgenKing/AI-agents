@@ -50,6 +50,27 @@ This tool has no side effects — it just helps you reason strategically.`,
   {
     type: "function" as const,
     function: {
+      name: "write_file",
+      description: "Write content to a local file. Creates the file if it doesn't exist, overwrites if it does.",
+      parameters: {
+        type: "object",
+        properties: {
+          path: {
+            type: "string",
+            description: "The file path to write to",
+          },
+          content: {
+            type: "string",
+            description: "The content to write to the file",
+          },
+        },
+        required: ["path", "content"],
+      },
+    },
+  },
+  {
+    type: "function" as const,
+    function: {
       name: "read_file",
       description: "Read the contents of a local file.",
       parameters: {
@@ -121,6 +142,15 @@ export const toolHandlers: Record<string, ToolHandler> = {
     }
 
     return output;
+  },
+
+  write_file: async ({ path = "", content = "" }) => {
+    try {
+      await Bun.write(path, content);
+      return `File written: ${path}`;
+    } catch (error) {
+      return `Error writing file: ${error}`;
+    }
   },
 
   read_file: async ({ path = "" }) => {

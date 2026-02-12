@@ -82,8 +82,8 @@ const cyan = (s: string) => `\x1b[36m${s}\x1b[0m`;
 
 console.log();
 console.log(dim("  ╭─────────────────────────────────────────────╮"));
-console.log(`  │  ⚡ ${bold("RawAGI")}                                    │`);
-console.log(`  │  ${dim(`${provider.name} · ${provider.model}`)}${" ".repeat(Math.max(0, 33 - provider.name.length - provider.model.length))}│`);
+console.log(`  │  ⚡ ${bold("RawAGI")}                                    `);
+console.log(`  │  ${dim(`${provider.name} · ${provider.model}`)}${" ".repeat(Math.max(0, 33 - provider.name.length - provider.model.length))}`);
 console.log(dim("  ╰─────────────────────────────────────────────╯"));
 console.log(dim(`  Type your questions. ${cyan('"exit"')} to quit.\n`));
 

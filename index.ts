@@ -123,6 +123,7 @@ The user gave you a path — use it directly with read_file.
 - Cite your sources with URLs
 - Match answer depth to question complexity (short answers for simple questions)
 - Structure complex answers with clear sections
+- Use markdown formatting: **bold** for emphasis, ## for headings, bullet points for lists
 - If sources disagree, say so — don't blend contradictions into a smooth narrative
 - State confidence level (high/medium/low) on contested or emerging claims
 - Distinguish between well-established facts and contested/evolving claims
@@ -150,6 +151,16 @@ const dim = (s: string) => `\x1b[90m${s}\x1b[0m`;
 const bold = (s: string) => `\x1b[1m${s}\x1b[0m`;
 const cyan = (s: string) => `\x1b[36m${s}\x1b[0m`;
 const red = (s: string) => `\x1b[31m${s}\x1b[0m`;
+
+// Render markdown to ANSI terminal colors
+function renderMarkdown(text: string): string {
+  return text
+    .replace(/^### (.+)$/gm, `\x1b[36m$1\x1b[0m`)           // ### heading → cyan
+    .replace(/^## (.+)$/gm, `\x1b[1m\x1b[36m$1\x1b[0m`)    // ## heading → bold cyan
+    .replace(/^# (.+)$/gm, `\x1b[1m\x1b[34m$1\x1b[0m`)     // # heading → bold blue
+    .replace(/\*\*(.+?)\*\*/g, `\x1b[1m$1\x1b[0m`)          // **bold**
+    .replace(/`(.+?)`/g, `\x1b[33m$1\x1b[0m`);              // `code` → yellow
+}
 
 console.log();
 console.log(dim("  ╭─────────────────────────────────────────────╮"));
@@ -193,7 +204,7 @@ while (true) {
   try {
     const answer = await chat(input.trim());
     console.log(dim("  ─".repeat(25)));
-    console.log(answer);
+    console.log(renderMarkdown(answer));
     console.log(dim("  ─".repeat(25)) + "\n");
   } catch (e: any) {
     console.log(dim("  ─".repeat(25)));

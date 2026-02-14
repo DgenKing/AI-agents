@@ -3,6 +3,8 @@
 // ============================================
 
 import { saveResearch, searchHistory, getResearch } from "./db";
+import { appendFile } from "node:fs/promises";
+import { readdir } from "node:fs/promises";
 
 // --- Tool Schemas (what the LLM sees) ---
 
@@ -223,6 +225,23 @@ This tool has no side effects — it just helps you reason strategically.`,
       },
     },
   },
+  {
+    type: "function" as const,
+    function: {
+      name: "list_files",
+      description: "List files in a directory. Useful for exploring project structure or finding files.",
+      parameters: {
+        type: "object",
+        properties: {
+          path: {
+            type: "string",
+            description: "The directory path to list (defaults to current directory)",
+          },
+        },
+        required: [],
+      },
+    },
+  },
 ];
 
 // --- Tool Handlers (what actually runs) ---
@@ -288,10 +307,10 @@ export const toolHandlers: Record<string, ToolHandler> = {
 
   save_memory: async ({ note = "" }) => {
     try {
-      const file = Bun.file("memory.md");
+      const file = Bun.file("local/memory.md");
       const existing = await file.exists() ? await file.text() : "";
       const timestamp = new Date().toISOString().split("T")[0];
-      await Bun.write("memory.md", existing + `- [${timestamp}] ${note}\n`);
+      await Bun.write("local/memory.md", existing + `- [${timestamp}] ${note}\n`);
       return `Memory saved.`;
     } catch (error) {
       return `Error saving memory: ${error}`;
@@ -344,9 +363,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
 
   append_file: async ({ path = "", content = "" }) => {
     try {
-      const file = Bun.file(path);
-      const existing = await file.exists() ? await file.text() : "";
-      await Bun.write(path, existing + content);
+      await appendFile(path, content);
       return `Content appended to: ${path}`;
     } catch (error) {
       return `Error appending to file: ${error}`;
@@ -356,6 +373,9 @@ export const toolHandlers: Record<string, ToolHandler> = {
   read_file: async ({ path = "" }) => {
     try {
       const file = Bun.file(path);
+      if (!(await file.exists())) {
+        return `Error: File not found: ${path}`;
+      }
       return await file.text();
     } catch (error) {
       return `Error reading file: ${error}`;
@@ -384,6 +404,15 @@ export const toolHandlers: Record<string, ToolHandler> = {
       return searchHistory(keyword);
     } catch (error) {
       return `Error searching history: ${error}`;
+    }
+  },
+
+  list_files: async ({ path = "." }) => {
+    try {
+      const files = await readdir(path);
+      return files.join("\n");
+    } catch (error) {
+      return `Error listing directory: ${error}`;
     }
   },
 };

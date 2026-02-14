@@ -4,7 +4,7 @@
 
 import { Database } from "bun:sqlite";
 
-const db = new Database("research.db");
+const db = new Database("local/research.db");
 
 db.run(`CREATE TABLE IF NOT EXISTS research (
   id INTEGER PRIMARY KEY AUTOINCREMENT,

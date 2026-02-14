@@ -33,11 +33,8 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 # Finder (MacOS) folder config
 .DS_Store
 
+# local data (personal memory, research db, exports, test files — never committed)
+local/
+
 # private
 private/
-
-# personal memory (not for sharing)
-memory.md
-
-# local research database
-*.db

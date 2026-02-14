@@ -6,10 +6,17 @@ import { providers } from "./providers";
 import { createChat } from "./agent";
 
 // --- Load persistent memory ---
-const memoryFile = Bun.file("memory.md");
+const memoryFile = Bun.file("local/memory.md");
 const memory = await memoryFile.exists() ? await memoryFile.text() : "";
 const memorySection = memory.trim()
   ? `\n## Your Memory (from previous sessions)\n${memory.trim()}\n`
+  : "";
+
+// --- Load Bun API reference (pre-processed docs for self-improvement) ---
+const refFile = Bun.file("docs/bun-reference.md");
+const bunRef = await refFile.exists() ? await refFile.text() : "";
+const bunRefSection = bunRef.trim()
+  ? `\n## Bun API Reference (verified local docs)\nThe following APIs are CONFIRMED to exist in this project's Bun runtime. When suggesting code improvements, use ONLY these APIs.\n${bunRef.trim()}\n`
   : "";
 
 // --- Pick your provider ---
@@ -100,6 +107,7 @@ CRITICAL: When the user tells you to save specific text, save their EXACT words.
 
 Do NOT save memory for every query — only things genuinely worth remembering long-term.
 ${memorySection}
+${bunRefSection}
 You have access to tools. Use them strategically, not mechanically.`;
 
 // --- Interactive chat ---
@@ -143,6 +151,7 @@ while (true) {
     console.log(`    ${cyan("save_research")} Save research to SQLite database`);
     console.log(`    ${cyan("get_research")}  Get full research entry by ID`);
     console.log(`    ${cyan("search_history")}Search past research by keyword`);
+    console.log(`    ${cyan("list_files")}    List files in a directory`);
     console.log();
     continue;
   }

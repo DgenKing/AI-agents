@@ -20,7 +20,7 @@ const bunRefSection = bunRef.trim()
   : "";
 
 // --- Pick your provider ---
-const provider = providers.deepseek;
+const provider = providers.deepseek; //CHANGE LLM HERE!
 
 // --- Define your specialist ---
 const systemPrompt = `You are a Research Specialist AI agent with dynamic strategy selection.

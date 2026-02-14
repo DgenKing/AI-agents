@@ -47,6 +47,13 @@ export const providers = {
     model: "gpt-4o",
   },
 
+  minimax: {
+    name: "MiniMax",
+    baseURL: "https://api.minimax.io/v1",
+    apiKey: process.env.MINIMAX_API_KEY || "",
+    model: "MiniMax-M2.5",
+  },
+
   // Local models via Ollama (free, no API key)
   ollama: {
     name: "Ollama",

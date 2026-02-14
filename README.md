@@ -1,4 +1,4 @@
-# RawAGI — A Truth Engine in 3 Files
+# RawAGI — A Truth Engine in 4 Files
 
 A framework-free AI research agent built in TypeScript/Bun. No LangChain. No abstractions. Just the raw loop that every agent framework is hiding from you.
 
@@ -46,10 +46,15 @@ That's it. That's what LangChain, AutoGPT, and every other framework is doing. H
 | `think` | Zero-side-effect reasoning scratchpad. The LLM plans strategy, challenges findings, decides next steps. |
 | `web_search` | Tavily API. Returns 5 results with trimmed snippets to keep context lean. |
 | `fetch_url` | Fetch full webpage content. Strips HTML to readable text. Used for deep reading when search snippets aren't enough. |
-| `read_file` | Read local files. |
+| `read_file` | Read local files. Returns clean "file not found" errors instead of crashing. |
 | `write_file` | Write content to a file. Creates or overwrites. |
-| `append_file` | Append content to a file. Creates if it doesn't exist. Great for building up reports incrementally. |
+| `append_file` | Append content to a file using native `appendFile` — no read+rewrite overhead. |
+| `list_files` | List files in a directory. Useful for exploring project structure. |
 | `calculator` | Evaluate math expressions. Supports arithmetic, exponents, and `Math` functions. |
+| `save_memory` | Save a note to persistent memory (`local/memory.md`). Loaded into context on startup. |
+| `save_research` | Save research to SQLite database with credibility rating (high/medium/low) and source URLs. |
+| `get_research` | Retrieve full text of a saved research entry by ID. |
+| `search_history` | Search past research by keyword. Returns up to 5 recent matches. |
 
 Type `/tools` in the chat to see all available tools at any time.
 
@@ -73,11 +78,14 @@ Four prompt layers that most agents skip:
 
 ## Features
 
-- **7 tools** — think, search, fetch, read, write, append, calculate
+- **12 tools** — think, search, fetch, read, write, append, list, calculate, memory, save/get/search research
+- **SQLite research database** — Save research with credibility scores and source URLs. Search and retrieve later.
+- **Persistent memory** — Agent remembers user preferences and key facts across sessions via `local/memory.md`
+- **Self-improving** — Loads Bun API reference docs at startup so the agent can suggest its own tool improvements
 - **Multi-provider** — DeepSeek, OpenAI, Mistral, Groq, Ollama (local)
 - **Token tracking** — Live token usage and cache hit rates after every response
 - **Interactive chat** — Persistent conversation history across turns
-- **File I/O** — Agent can read, write, and append to local files (save reports, build logs)
+- **File I/O** — Agent can read, write, append, and list local files
 - **Deep reading** — Agent reads full articles when snippets aren't sufficient
 - **`/tools` command** — See all available tools from the chat
 - **Zero frameworks** — No LangChain, no abstractions, just the loop
@@ -143,8 +151,11 @@ All providers use the OpenAI-compatible chat completions format — same request
 ```
 index.ts      — Entry point. System prompt + interactive chat loop.
 agent.ts      — The agent loop. ~200 lines. No magic.
-tools.ts      — Tool definitions + handlers (7 tools).
+tools.ts      — Tool definitions + handlers (12 tools).
+db.ts         — SQLite database layer for research history.
 providers.ts  — LLM provider configs. Swap with one line.
+docs/         — Shared reference docs (Bun API reference, loaded at startup).
+local/        — Personal data (memory, research DB). Gitignored — never committed.
 ```
 
 ---
@@ -179,4 +190,5 @@ That's the difference between a chatbot and a research tool.
 - [Bun](https://bun.sh) — TypeScript runtime, no build step needed
 - [DeepSeek](https://deepseek.com) — Primary LLM (swappable)
 - [Tavily](https://tavily.com) — Web search API
+- [SQLite](https://www.sqlite.org/) — Research history via `bun:sqlite`
 - Zero frameworks. Zero abstractions. Just the loop.

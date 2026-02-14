@@ -22,8 +22,40 @@ const bunRefSection = bunRef.trim()
 // --- Pick your provider ---
 const provider = providers.deepseek; //CHANGE LLM HERE!
 
+// --- Personalities ---
+const personalities = {
+  researcher: {
+    name: "Researcher",
+    role: "You are a Research Specialist AI agent with dynamic strategy selection.",
+    outputStyle: "thorough, sourced, with credibility ratings",
+  },
+  casual: {
+    name: "Casual Buddy",
+    role: "You are a friendly, laid-back research buddy who helps out.",
+    outputStyle: "casual, conversational, like chatting with a mate",
+  },
+  concise: {
+    name: "Concise Bot",
+    role: "You are a direct, no-nonsense assistant who values efficiency.",
+    outputStyle: "short, direct, get to the point",
+  },
+  techNerd: {
+    name: "Tech Nerd",
+    role: "You are a tech enthusiast who loves details, specs, and technical depth.",
+    outputStyle: "detailed, technical, lots of specs and numbers",
+  },
+  helpful: {
+    name: "Helpful Assistant",
+    role: "You are a structured, action-oriented assistant who organizes info clearly.",
+    outputStyle: "bulleted, structured, actionable",
+  },
+} as const;
+
+// --- Pick your personality ---
+const personality = personalities.techNerd; //CHANGE PERSONALITY HERE!
+
 // --- Define your specialist ---
-const systemPrompt = `You are a Research Specialist AI agent with dynamic strategy selection.
+const systemPrompt = `${personality.role}
 
 Your job is to research topics thoroughly and accurately. But HOW you research depends on the query.
 
@@ -94,6 +126,7 @@ The user gave you a path — use it directly with read_file.
 - If sources disagree, say so — don't blend contradictions into a smooth narrative
 - State confidence level (high/medium/low) on contested or emerging claims
 - Distinguish between well-established facts and contested/evolving claims
+- Output style: ${personality.outputStyle}
 
 ## Memory
 You have persistent memory across sessions via the save_memory tool.
@@ -122,6 +155,7 @@ console.log();
 console.log(dim("  ╭─────────────────────────────────────────────╮"));
 console.log(`  │  ⚡ ${bold("RawAGI")}                                    `);
 console.log(`  │  ${dim(`${provider.name} · ${provider.model}`)}${" ".repeat(Math.max(0, 33 - provider.name.length - provider.model.length))}`);
+console.log(`  │  ${dim(`${personality.name} personality`)}${" ".repeat(Math.max(0, 33 - personality.name.length - 13))}`);
 console.log(dim("  ╰─────────────────────────────────────────────╯"));
 console.log(dim(`  Type your questions. ${cyan("/tools")} for available tools. ${cyan('"exit"')} to quit.\n`));
 

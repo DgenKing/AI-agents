@@ -48,6 +48,9 @@ console.log(`  │  ${dim(getActiveAgentName())}${" ".repeat(20)}`);
 console.log(dim("  ╰─────────────────────────────────────────────╯"));
 console.log(dim(`  Type your questions. ${cyan("/tools")} for tools, ${cyan("/agents")} for agents, ${cyan("/use")} to force an agent.\n`));
 
+// Cache chats per agent so they retain conversation history
+const chatCache: Partial<Record<AgentKey, (msg: string) => Promise<string>>> = {};
+
 while (true) {
   const input = prompt("\x1b[1mYou:\x1b[0m ");
   if (!input || input.trim().toLowerCase() === "exit") {
@@ -125,12 +128,12 @@ while (true) {
     console.log(dim(`  🤖 ${magenta(agent.name)} (${agent.provider.name})`));
     console.log(dim(`  ─.repeat(25)`));
 
-    // Build the system prompt with memory and bunRef
-    const systemPrompt = getAgentSystemPrompt(agentKey, memory, bunRef);
-
-    // Create chat with the selected agent's provider and tools
-    const chat = createChat(agent.provider, systemPrompt, agent.tools);
-    const answer = await chat(input.trim());
+    // Get or create cached chat for this agent
+    if (!chatCache[agentKey]) {
+      const systemPrompt = getAgentSystemPrompt(agentKey, memory, bunRef);
+      chatCache[agentKey] = createChat(agent.provider, systemPrompt, agent.tools);
+    }
+    const answer = await chatCache[agentKey]!(input.trim());
 
     console.log(dim("  ─".repeat(25)));
     console.log(renderMarkdown(answer));

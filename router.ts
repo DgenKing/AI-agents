@@ -33,12 +33,24 @@ const patterns: Record<AgentKey, RegExp[]> = {
   general: [],
 };
 
+let lastAgent: AgentKey = "general";
+
 export async function route(query: string): Promise<AgentKey> {
-  const lowerQuery = query.toLowerCase();
+  const lowerQuery = query.toLowerCase().trim();
+
+  // Short/vague messages are follow-ups — stay with last agent
+  if (lowerQuery.length < 30 && !lowerQuery.includes("?")) {
+    const hasKeyword = [...patterns.code, ...patterns.research, ...patterns.reasoning]
+      .some(p => p.test(lowerQuery));
+    if (!hasKeyword) {
+      return lastAgent;
+    }
+  }
 
   // Check code patterns first (most specific)
   for (const pattern of patterns.code) {
     if (pattern.test(lowerQuery)) {
+      lastAgent = "code";
       return "code";
     }
   }
@@ -46,6 +58,7 @@ export async function route(query: string): Promise<AgentKey> {
   // Check research patterns
   for (const pattern of patterns.research) {
     if (pattern.test(lowerQuery)) {
+      lastAgent = "research";
       return "research";
     }
   }
@@ -53,11 +66,13 @@ export async function route(query: string): Promise<AgentKey> {
   // Check reasoning patterns
   for (const pattern of patterns.reasoning) {
     if (pattern.test(lowerQuery)) {
+      lastAgent = "reasoning";
       return "reasoning";
     }
   }
 
   // Default to general
+  lastAgent = "general";
   return "general";
 }
 

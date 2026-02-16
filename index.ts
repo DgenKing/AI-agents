@@ -2,9 +2,8 @@
 // ENTRY POINT - Run with: bun run index.ts
 // ============================================
 
-import { createChat } from "./agent";
-import { agents, getAgentSystemPrompt, type AgentKey } from "./agents";
-import { route, listAgents } from "./router";
+import { createChat, agents, getAgentSystemPrompt, type AgentKey } from "./agent";
+import { route } from "./router";
 
 // --- Load persistent memory ---
 const memoryFile = Bun.file("local/memory.md");

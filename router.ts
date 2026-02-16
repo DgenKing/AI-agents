@@ -2,7 +2,7 @@
 // ROUTER - Routes queries to the appropriate agent
 // ============================================
 
-import type { AgentKey } from "./agents";
+import type { AgentKey } from "./agent";
 
 // Keyword patterns for routing
 const patterns: Record<AgentKey, RegExp[]> = {
